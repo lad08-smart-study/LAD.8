@@ -134,7 +134,6 @@
                 </header>
 
                 <div class="dashboard-grid">
-                    <!-- بطاقة البدء السريع -->
                     <div class="card card-featured">
                         <div class="card-icon pulse">
                             <i class="fas fa-play"></i>
@@ -147,7 +146,6 @@
                         </button>
                     </div>
 
-                    <!-- إحصائيات سريعة -->
                     <div class="stats-grid">
                         <div class="stat-card">
                             <div class="stat-icon blue">
@@ -178,7 +176,6 @@
                         </div>
                     </div>
 
-                    <!-- المراجعات المستحقة -->
                     <div class="card card-full">
                         <div class="card-header">
                             <h3><i class="fas fa-bell"></i> <span data-key="dueReviews">Révisions dues</span></h3>
@@ -188,7 +185,6 @@
                         </div>
                     </div>
 
-                    <!-- الجدول اليومي -->
                     <div class="card card-full">
                         <div class="card-header">
                             <h3><i class="fas fa-calendar-day"></i> <span data-key="todaySchedule">Planning d'aujourd'hui</span></h3>
@@ -214,9 +210,7 @@
                     </div>
                 </header>
 
-                <div id="workspaceContent" class="workspace-tree">
-                    <!-- يُملأ ديناميكياً -->
-                </div>
+                <div id="workspaceContent" class="workspace-tree"></div>
             </section>
 
             <!-- صفحة المخطط -->
@@ -229,9 +223,7 @@
                 </header>
 
                 <div class="planner-container">
-                    <div class="week-view" id="weekView">
-                        <!-- أيام الأسبوع -->
-                    </div>
+                    <div class="week-view" id="weekView"></div>
                 </div>
             </section>
 
@@ -248,9 +240,7 @@
                         </div>
                         <h3>Pomodoro</h3>
                         <p>25 min focus + 5 min pause</p>
-                        <button class="btn-primary" onclick="app.startPomodoro()">
-                            Démarrer
-                        </button>
+                        <button class="btn-primary" onclick="app.startPomodoro()">Démarrer</button>
                     </div>
 
                     <div class="mode-card" id="flashcardsMode">
@@ -259,9 +249,7 @@
                         </div>
                         <h3>Flashcards</h3>
                         <p>Répétition espacée</p>
-                        <button class="btn-primary" onclick="app.startFlashcards()">
-                            Réviser
-                        </button>
+                        <button class="btn-primary" onclick="app.startFlashcards()">Réviser</button>
                     </div>
 
                     <div class="mode-card" id="quizMode">
@@ -270,13 +258,10 @@
                         </div>
                         <h3>QCM</h3>
                         <p>Questions à choix multiples</p>
-                        <button class="btn-primary" onclick="app.startQuiz()">
-                            Tester
-                        </button>
+                        <button class="btn-primary" onclick="app.startQuiz()">Tester</button>
                     </div>
                 </div>
 
-                <!-- مؤقت Pomodoro -->
                 <div id="pomodoroTimer" class="timer-container" style="display: none;">
                     <div class="timer-circle">
                         <svg viewBox="0 0 100 100">
@@ -288,13 +273,13 @@
                         </div>
                     </div>
                     <div class="timer-controls">
-                        <button id="timerToggle" class="btn-primary btn-lg">
+                        <button id="timerToggle" class="btn-primary btn-lg" onclick="app.toggleTimer()">
                             <i class="fas fa-play"></i>
                         </button>
-                        <button id="timerReset" class="btn-secondary">
+                        <button id="timerReset" class="btn-secondary" onclick="app.resetTimer()">
                             <i class="fas fa-redo"></i>
                         </button>
-                        <button id="timerSettings" class="btn-secondary">
+                        <button id="timerSettings" class="btn-secondary" onclick="app.showModal('timerSettingsModal')">
                             <i class="fas fa-cog"></i>
                         </button>
                     </div>
@@ -341,7 +326,7 @@
                     <h4>AI Assistant</h4>
                     <span class="ai-status online">En ligne</span>
                 </div>
-                <button id="toggleAi" class="btn-icon">
+                <button id="toggleAi" class="btn-icon" onclick="app.toggleAiSidebar()">
                     <i class="fas fa-chevron-down"></i>
                 </button>
             </div>
@@ -353,8 +338,8 @@
             </div>
             
             <div class="ai-input">
-                <input type="text" id="aiInput" placeholder="Posez votre question..." data-key-placeholder="askAi">
-                <button id="aiSend" class="btn-icon">
+                <input type="text" id="aiInput" placeholder="Posez votre question..." onkeypress="if(event.key==='Enter')app.sendAiMessage()">
+                <button id="aiSend" class="btn-icon" onclick="app.sendAiMessage()">
                     <i class="fas fa-paper-plane"></i>
                 </button>
             </div>
@@ -376,14 +361,14 @@
         </aside>
     </main>
 
-    <!-- نموذج إضافة وحدة -->
+    <!-- النماذج المنبثقة -->
     <div class="modal" id="addUnitModal">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 data-key="addUnit">Nouvelle Unité</h3>
                 <button class="btn-close" onclick="app.closeModal('addUnitModal')">&times;</button>
             </div>
-            <form id="unitForm">
+            <form id="unitForm" onsubmit="app.handleUnitSubmit(event)">
                 <div class="form-group">
                     <label>Nom (FR)</label>
                     <input type="text" id="unitNameFr" required>
@@ -401,14 +386,13 @@
         </div>
     </div>
 
-    <!-- نموذج إضافة مادة -->
     <div class="modal" id="addSubjectModal">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 data-key="addSubject">Nouvelle Matière</h3>
                 <button class="btn-close" onclick="app.closeModal('addSubjectModal')">&times;</button>
             </div>
-            <form id="subjectForm">
+            <form id="subjectForm" onsubmit="app.handleSubjectSubmit(event)">
                 <div class="form-group">
                     <label>Nom (FR)</label>
                     <input type="text" id="subjectNameFr" required>
@@ -454,14 +438,13 @@
         </div>
     </div>
 
-    <!-- نموذج إضافة درس -->
     <div class="modal" id="addLessonModal">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 data-key="addLesson">Nouvelle Leçon</h3>
                 <button class="btn-close" onclick="app.closeModal('addLessonModal')">&times;</button>
             </div>
-            <form id="lessonForm">
+            <form id="lessonForm" onsubmit="app.handleLessonSubmit(event)">
                 <input type="hidden" id="lessonSubjectId">
                 <div class="form-group">
                     <label>Titre (FR)</label>
@@ -484,14 +467,13 @@
         </div>
     </div>
 
-    <!-- إعدادات المؤقت -->
     <div class="modal" id="timerSettingsModal">
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Paramètres Pomodoro</h3>
                 <button class="btn-close" onclick="app.closeModal('timerSettingsModal')">&times;</button>
             </div>
-            <form id="timerSettingsForm">
+            <form id="timerSettingsForm" onsubmit="app.handleTimerSettings(event)">
                 <div class="form-group">
                     <label>Temps de focus (minutes)</label>
                     <input type="number" id="focusTime" value="25" min="1" max="60">
