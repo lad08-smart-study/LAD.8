@@ -1,3 +1,1591 @@
+ سأعطيك الكود الكامل لـ **LOK.A.D.08** قابل للنسخ مباشرة.
+
+---
+
+## 📁 هيكل الملفات
+
+```
+lokad08/
+├── index.html          (الواجهة الرئيسية)
+├── css/
+│   └── style.css       (التصميم)
+├── js/
+│   └── app.js          (المنطق البرمجي)
+├── api/
+│   └── gemini.js       (API للذكاء الاصطناعي)
+└── .env                (مفتاح Gemini)
+```
+
+---
+
+## 1️⃣ index.html
+
+```html
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOK.A.D.08 - Medical Study Companion</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- شريط التنقل -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <i class="fas fa-heartbeat"></i>
+            <span>LOK.A.D.08</span>
+        </div>
+        <div class="nav-controls">
+            <button id="langToggle" class="btn-lang">
+                <i class="fas fa-globe"></i>
+                <span>FR</span>
+            </button>
+            <button id="authBtn" class="btn-auth">
+                <i class="fas fa-user"></i>
+                <span data-key="login">Connexion</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- القسم الرئيسي -->
+    <main class="main-container">
+        <!-- الشريط الجانبي -->
+        <aside class="sidebar">
+            <div class="user-profile" id="userProfile" style="display: none;">
+                <div class="avatar">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <h3 id="userName">--</h3>
+                <p id="userYear">--</p>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-page="dashboard">
+                    <i class="fas fa-home"></i>
+                    <span data-key="dashboard">Tableau de bord</span>
+                </button>
+                <button class="nav-item" data-page="workspace">
+                    <i class="fas fa-folder-tree"></i>
+                    <span data-key="workspace">Mon Espace</span>
+                </button>
+                <button class="nav-item" data-page="planner">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span data-key="planner">Planning</span>
+                </button>
+                <button class="nav-item" data-page="review">
+                    <i class="fas fa-brain"></i>
+                    <span data-key="review">Révision</span>
+                </button>
+                <button class="nav-item" data-page="progress">
+                    <i class="fas fa-chart-line"></i>
+                    <span data-key="progress">Progrès</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- المحتوى الرئيسي -->
+        <div class="content">
+            <!-- صفحة تسجيل الدخول -->
+            <section id="authPage" class="page active">
+                <div class="auth-container">
+                    <div class="auth-box">
+                        <div class="auth-logo">
+                            <i class="fas fa-heartbeat"></i>
+                            <h1>LOK.A.D.08</h1>
+                            <p data-key="tagline">Votre Compagnon Intelligent d'Études Médicales</p>
+                        </div>
+                        
+                        <form id="loginForm" class="auth-form">
+                            <div class="form-group">
+                                <label data-key="email">Email</label>
+                                <input type="email" id="loginEmail" required placeholder="doctor@example.com">
+                            </div>
+                            <div class="form-group">
+                                <label data-key="password">Mot de passe</label>
+                                <input type="password" id="loginPassword" required>
+                            </div>
+                            <button type="submit" class="btn-primary btn-block">
+                                <span data-key="login">Connexion</span>
+                            </button>
+                        </form>
+
+                        <form id="registerForm" class="auth-form" style="display: none;">
+                            <div class="form-group">
+                                <label data-key="name">Nom complet</label>
+                                <input type="text" id="regName" required>
+                            </div>
+                            <div class="form-group">
+                                <label data-key="email">Email</label>
+                                <input type="email" id="regEmail" required>
+                            </div>
+                            <div class="form-group">
+                                <label data-key="password">Mot de passe</label>
+                                <input type="password" id="regPassword" required minlength="6">
+                            </div>
+                            <div class="form-group">
+                                <label data-key="year">Année d'études (1-6)</label>
+                                <select id="regYear" required>
+                                    <option value="1">1ère année</option>
+                                    <option value="2">2ème année</option>
+                                    <option value="3">3ème année</option>
+                                    <option value="4">4ème année</option>
+                                    <option value="5">5ème année</option>
+                                    <option value="6">6ème année</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn-primary btn-block">
+                                <span data-key="register">S'inscrire</span>
+                            </button>
+                        </form>
+
+                        <div class="auth-toggle">
+                            <span id="authToggleText" data-key="noAccount">Pas de compte?</span>
+                            <button id="authToggleBtn" class="btn-link" data-key="createAccount">Créer un compte</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- صفحة لوحة التحكم -->
+            <section id="dashboardPage" class="page">
+                <header class="page-header">
+                    <h2 data-key="dashboard">Tableau de bord</h2>
+                    <p class="page-subtitle" id="dashboardDate">--</p>
+                </header>
+
+                <div class="dashboard-grid">
+                    <!-- بطاقة البدء السريع -->
+                    <div class="card card-featured">
+                        <div class="card-icon pulse">
+                            <i class="fas fa-play"></i>
+                        </div>
+                        <h3 data-key="startNow">Commencer maintenant</h3>
+                        <p data-key="continueStudying">Continuez votre session d'étude</p>
+                        <button class="btn-primary" id="quickStartBtn">
+                            <i class="fas fa-book-open"></i>
+                            <span data-key="study">Étudier</span>
+                        </button>
+                    </div>
+
+                    <!-- إحصائيات سريعة -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon blue">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="todayHours">0h</span>
+                                <span class="stat-label" data-key="today">Aujourd'hui</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon green">
+                                <i class="fas fa-fire"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="streakDays">0</span>
+                                <span class="stat-label" data-key="streak">Jours consécutifs</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon orange">
+                                <i class="fas fa-tasks"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="progressPercent">0%</span>
+                                <span class="stat-label" data-key="progress">Progrès</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- المراجعات المستحقة -->
+                    <div class="card card-full">
+                        <div class="card-header">
+                            <h3><i class="fas fa-bell"></i> <span data-key="dueReviews">Révisions dues</span></h3>
+                        </div>
+                        <div id="dueReviewsList" class="due-list">
+                            <p class="empty-state" data-key="noReviews">Aucune révision pour aujourd'hui</p>
+                        </div>
+                    </div>
+
+                    <!-- الجدول اليومي -->
+                    <div class="card card-full">
+                        <div class="card-header">
+                            <h3><i class="fas fa-calendar-day"></i> <span data-key="todaySchedule">Planning d'aujourd'hui</span></h3>
+                        </div>
+                        <div id="todaySchedule" class="schedule-list">
+                            <p class="empty-state" data-key="noSchedule">Aucune session planifiée</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- صفحة مساحة العمل -->
+            <section id="workspacePage" class="page">
+                <header class="page-header">
+                    <h2 data-key="workspace">Mon Espace de Travail</h2>
+                    <div class="header-actions">
+                        <button class="btn-secondary" id="addUnitBtn">
+                            <i class="fas fa-plus"></i> <span data-key="addUnit">Unité</span>
+                        </button>
+                        <button class="btn-secondary" id="addSubjectBtn">
+                            <i class="fas fa-plus"></i> <span data-key="addSubject">Matière</span>
+                        </button>
+                    </div>
+                </header>
+
+                <div id="workspaceContent" class="workspace-tree">
+                    <!-- يُملأ ديناميكياً -->
+                </div>
+            </section>
+
+            <!-- صفحة المخطط -->
+            <section id="plannerPage" class="page">
+                <header class="page-header">
+                    <h2 data-key="planner">Planning Intelligent</h2>
+                    <button class="btn-primary" id="generatePlanBtn">
+                        <i class="fas fa-magic"></i> <span data-key="generatePlan">Générer un planning</span>
+                    </button>
+                </header>
+
+                <div class="planner-container">
+                    <div class="week-view" id="weekView">
+                        <!-- أيام الأسبوع -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- صفحة المراجعة -->
+            <section id="reviewPage" class="page">
+                <header class="page-header">
+                    <h2 data-key="review">Mode Révision</h2>
+                </header>
+
+                <div class="review-modes">
+                    <div class="mode-card" id="pomodoroMode">
+                        <div class="mode-icon">
+                            <i class="fas fa-stopwatch"></i>
+                        </div>
+                        <h3>Pomodoro</h3>
+                        <p>25 min focus + 5 min pause</p>
+                        <button class="btn-primary" onclick="app.startPomodoro()">
+                            Démarrer
+                        </button>
+                    </div>
+
+                    <div class="mode-card" id="flashcardsMode">
+                        <div class="mode-icon">
+                            <i class="fas fa-clone"></i>
+                        </div>
+                        <h3>Flashcards</h3>
+                        <p>Répétition espacée</p>
+                        <button class="btn-primary" onclick="app.startFlashcards()">
+                            Réviser
+                        </button>
+                    </div>
+
+                    <div class="mode-card" id="quizMode">
+                        <div class="mode-icon">
+                            <i class="fas fa-question-circle"></i>
+                        </div>
+                        <h3>QCM</h3>
+                        <p>Questions à choix multiples</p>
+                        <button class="btn-primary" onclick="app.startQuiz()">
+                            Tester
+                        </button>
+                    </div>
+                </div>
+
+                <!-- مؤقت Pomodoro -->
+                <div id="pomodoroTimer" class="timer-container" style="display: none;">
+                    <div class="timer-circle">
+                        <svg viewBox="0 0 100 100">
+                            <circle class="timer-bg" cx="50" cy="50" r="45"></circle>
+                            <circle class="timer-progress" id="timerProgress" cx="50" cy="50" r="45"></circle>
+                        </svg>
+                        <div class="timer-display">
+                            <span id="timerMinutes">25</span>:<span id="timerSeconds">00</span>
+                        </div>
+                    </div>
+                    <div class="timer-controls">
+                        <button id="timerToggle" class="btn-primary btn-lg">
+                            <i class="fas fa-play"></i>
+                        </button>
+                        <button id="timerReset" class="btn-secondary">
+                            <i class="fas fa-redo"></i>
+                        </button>
+                        <button id="timerSettings" class="btn-secondary">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                    </div>
+                    <div class="timer-status" id="timerStatus">Prêt à commencer</div>
+                </div>
+            </section>
+
+            <!-- صفحة التقدم -->
+            <section id="progressPage" class="page">
+                <header class="page-header">
+                    <h2 data-key="progress">Mes Progrès</h2>
+                </header>
+
+                <div class="progress-dashboard">
+                    <div class="progress-chart-container">
+                        <canvas id="progressChart"></canvas>
+                    </div>
+                    
+                    <div class="progress-stats">
+                        <div class="stat-row">
+                            <span data-key="totalStudyTime">Temps total d'étude</span>
+                            <strong id="totalStudyTime">0h</strong>
+                        </div>
+                        <div class="stat-row">
+                            <span data-key="completedLessons">Leçons terminées</span>
+                            <strong id="completedLessons">0/0</strong>
+                        </div>
+                        <div class="stat-row">
+                            <span data-key="averageSession">Session moyenne</span>
+                            <strong id="avgSession">0 min</strong>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- مساعد الذكاء الاصطناعي -->
+        <aside class="ai-sidebar" id="aiSidebar">
+            <div class="ai-header">
+                <div class="ai-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div>
+                    <h4>AI Assistant</h4>
+                    <span class="ai-status online">En ligne</span>
+                </div>
+                <button id="toggleAi" class="btn-icon">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+            </div>
+            
+            <div class="ai-chat" id="aiChat">
+                <div class="ai-message ai-welcome">
+                    <p>Bonjour! Je suis votre assistant d'études. Comment puis-je vous aider aujourd'hui?</p>
+                </div>
+            </div>
+            
+            <div class="ai-input">
+                <input type="text" id="aiInput" placeholder="Posez votre question..." data-key-placeholder="askAi">
+                <button id="aiSend" class="btn-icon">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+            
+            <div class="ai-actions">
+                <button class="ai-action-btn" onclick="app.askAI('summarize')">
+                    <i class="fas fa-compress"></i> Résumer
+                </button>
+                <button class="ai-action-btn" onclick="app.askAI('quiz')">
+                    <i class="fas fa-question"></i> QCM
+                </button>
+                <button class="ai-action-btn" onclick="app.askAI('flashcards')">
+                    <i class="fas fa-clone"></i> Flashcards
+                </button>
+                <button class="ai-action-btn" onclick="app.askAI('plan')">
+                    <i class="fas fa-calendar"></i> Planifier
+                </button>
+            </div>
+        </aside>
+    </main>
+
+    <!-- نموذج إضافة وحدة -->
+    <div class="modal" id="addUnitModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-key="addUnit">Nouvelle Unité</h3>
+                <button class="btn-close" onclick="app.closeModal('addUnitModal')">&times;</button>
+            </div>
+            <form id="unitForm">
+                <div class="form-group">
+                    <label>Nom (FR)</label>
+                    <input type="text" id="unitNameFr" required>
+                </div>
+                <div class="form-group">
+                    <label>الاسم (AR)</label>
+                    <input type="text" id="unitNameAr" required>
+                </div>
+                <div class="form-group">
+                    <label data-key="color">Couleur</label>
+                    <input type="color" id="unitColor" value="#005EB8">
+                </div>
+                <button type="submit" class="btn-primary btn-block">Ajouter</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- نموذج إضافة مادة -->
+    <div class="modal" id="addSubjectModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-key="addSubject">Nouvelle Matière</h3>
+                <button class="btn-close" onclick="app.closeModal('addSubjectModal')">&times;</button>
+            </div>
+            <form id="subjectForm">
+                <div class="form-group">
+                    <label>Nom (FR)</label>
+                    <input type="text" id="subjectNameFr" required>
+                </div>
+                <div class="form-group">
+                    <label>الاسم (AR)</label>
+                    <input type="text" id="subjectNameAr" required>
+                </div>
+                <div class="form-group">
+                    <label data-key="unit">Unité (optionnel)</label>
+                    <select id="subjectUnit">
+                        <option value="">-- Indépendant --</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label data-key="difficulty">Difficulté</label>
+                        <select id="subjectDifficulty">
+                            <option value="1">1 - Facile</option>
+                            <option value="2">2</option>
+                            <option value="3" selected>3 - Moyen</option>
+                            <option value="4">4</option>
+                            <option value="5">5 - Difficile</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label data-key="importance">Importance</label>
+                        <select id="subjectImportance">
+                            <option value="1">1 - Faible</option>
+                            <option value="2">2</option>
+                            <option value="3" selected>3 - Moyenne</option>
+                            <option value="4">4</option>
+                            <option value="5">5 - Critique</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label data-key="examDate">Date d'examen</label>
+                    <input type="date" id="subjectExamDate">
+                </div>
+                <button type="submit" class="btn-primary btn-block">Ajouter</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- نموذج إضافة درس -->
+    <div class="modal" id="addLessonModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-key="addLesson">Nouvelle Leçon</h3>
+                <button class="btn-close" onclick="app.closeModal('addLessonModal')">&times;</button>
+            </div>
+            <form id="lessonForm">
+                <input type="hidden" id="lessonSubjectId">
+                <div class="form-group">
+                    <label>Titre (FR)</label>
+                    <input type="text" id="lessonTitleFr" required>
+                </div>
+                <div class="form-group">
+                    <label>العنوان (AR)</label>
+                    <input type="text" id="lessonTitleAr" required>
+                </div>
+                <div class="form-group">
+                    <label data-key="estimatedTime">Durée estimée (min)</label>
+                    <input type="number" id="lessonDuration" value="60" min="15" step="15">
+                </div>
+                <div class="form-group">
+                    <label data-key="content">Contenu / Notes</label>
+                    <textarea id="lessonContent" rows="4"></textarea>
+                </div>
+                <button type="submit" class="btn-primary btn-block">Ajouter</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- إعدادات المؤقت -->
+    <div class="modal" id="timerSettingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Paramètres Pomodoro</h3>
+                <button class="btn-close" onclick="app.closeModal('timerSettingsModal')">&times;</button>
+            </div>
+            <form id="timerSettingsForm">
+                <div class="form-group">
+                    <label>Temps de focus (minutes)</label>
+                    <input type="number" id="focusTime" value="25" min="1" max="60">
+                </div>
+                <div class="form-group">
+                    <label>Temps de pause (minutes)</label>
+                    <input type="number" id="breakTime" value="5" min="1" max="30">
+                </div>
+                <div class="form-group">
+                    <label>Longue pause après (cycles)</label>
+                    <input type="number" id="longBreakInterval" value="4" min="2" max="10">
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="autoStartBreaks" checked>
+                        Démarrer les pauses automatiquement
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="soundEnabled" checked>
+                        Activer les sons
+                    </label>
+                </div>
+                <button type="submit" class="btn-primary btn-block">Enregistrer</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
+```
+
+---
+
+## 2️⃣ css/style.css
+
+```css
+/* ===================================
+   LOK.A.D.08 - Medical Study System
+   Modern Medical Design Theme
+   =================================== */
+
+:root {
+    /* Medical Color Palette */
+    --primary: #005EB8;
+    --primary-light: #0072CE;
+    --primary-dark: #003087;
+    --secondary: #00A9CE;
+    --success: #00A651;
+    --warning: #FF8C00;
+    --danger: #DA291C;
+    --background: #F0F4F8;
+    --surface: #FFFFFF;
+    --text-primary: #212B36;
+    --text-secondary: #637381;
+    --text-muted: #919EAB;
+    --border: #DFE3E8;
+    --shadow: 0 2px 8px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+    --radius: 12px;
+    --radius-sm: 8px;
+    
+    /* Animation */
+    --transition: all 0.3s ease;
+}
+
+/* Reset & Base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--background);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+/* Arabic Font */
+[dir="rtl"] body {
+    font-family: 'Cairo', 'Inter', sans-serif;
+}
+
+/* ===================================
+   NAVIGATION
+   =================================== */
+
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    z-index: 1000;
+    box-shadow: var(--shadow);
+}
+
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.nav-brand i {
+    font-size: 1.75rem;
+    animation: heartbeat 2s infinite;
+}
+
+@keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    10%, 30% { transform: scale(1.1); }
+    20%, 40% { transform: scale(1); }
+}
+
+.nav-controls {
+    display: flex;
+    gap: 12px;
+}
+
+/* ===================================
+   BUTTONS
+   =================================== */
+
+.btn-primary, .btn-secondary, .btn-lang, .btn-auth, .btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: var(--radius-sm);
+    border: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-secondary {
+    background: var(--surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+    background: var(--background);
+    border-color: var(--primary);
+}
+
+.btn-lang, .btn-auth {
+    background: transparent;
+    color: var(--text-secondary);
+    padding: 8px 16px;
+}
+
+.btn-lang:hover, .btn-auth:hover {
+    background: var(--background);
+    color: var(--primary);
+}
+
+.btn-icon {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    background: transparent;
+    color: var(--text-secondary);
+}
+
+.btn-icon:hover {
+    background: var(--background);
+    color: var(--primary);
+}
+
+.btn-block {
+    width: 100%;
+    padding: 14px;
+    font-size: 1rem;
+}
+
+.btn-link {
+    background: none;
+    border: none;
+    color: var(--primary);
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.btn-link:hover {
+    text-decoration: underline;
+}
+
+.btn-lg {
+    padding: 16px 32px;
+    font-size: 1.25rem;
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+}
+
+/* ===================================
+   LAYOUT
+   =================================== */
+
+.main-container {
+    display: flex;
+    margin-top: 64px;
+    min-height: calc(100vh - 64px);
+}
+
+.sidebar {
+    width: 260px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 24px 16px;
+    position: fixed;
+    height: 100%;
+    overflow-y: auto;
+}
+
+[dir="rtl"] .sidebar {
+    border-right: none;
+    border-left: 1px solid var(--border);
+}
+
+.content {
+    flex: 1;
+    margin-left: 260px;
+    padding: 32px;
+    max-width: calc(100% - 260px - 320px);
+}
+
+[dir="rtl"] .content {
+    margin-left: 0;
+    margin-right: 260px;
+}
+
+/* AI Sidebar */
+.ai-sidebar {
+    width: 320px;
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    position: fixed;
+    right: 0;
+    top: 64px;
+    height: calc(100vh - 64px);
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow);
+}
+
+[dir="rtl"] .ai-sidebar {
+    right: auto;
+    left: 0;
+    border-left: none;
+    border-right: 1px solid var(--border);
+}
+
+/* ===================================
+   SIDEBAR NAVIGATION
+   =================================== */
+
+.user-profile {
+    text-align: center;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+}
+
+.avatar {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.user-profile h3 {
+    font-size: 1rem;
+    margin-bottom: 4px;
+}
+
+.user-profile p {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: var(--transition);
+    width: 100%;
+    text-align: left;
+}
+
+[dir="rtl"] .nav-item {
+    text-align: right;
+}
+
+.nav-item:hover {
+    background: var(--background);
+    color: var(--text-primary);
+}
+
+.nav-item.active {
+    background: var(--primary);
+    color: white;
+}
+
+.nav-item i {
+    width: 20px;
+    text-align: center;
+}
+
+/* ===================================
+   PAGES
+   =================================== */
+
+.page {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.page.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.page-header {
+    margin-bottom: 32px;
+}
+
+.page-header h2 {
+    font-size: 1.75rem;
+    margin-bottom: 8px;
+}
+
+.page-subtitle {
+    color: var(--text-secondary);
+}
+
+.header-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+/* ===================================
+   AUTHENTICATION
+   =================================== */
+
+.auth-container {
+    min-height: calc(100vh - 64px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.auth-box {
+    background: var(--surface);
+    padding: 48px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    width: 100%;
+    max-width: 440px;
+}
+
+.auth-logo {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.auth-logo i {
+    font-size: 3rem;
+    color: var(--primary);
+    margin-bottom: 16px;
+    display: block;
+    animation: heartbeat 2s infinite;
+}
+
+.auth-logo h1 {
+    font-size: 1.75rem;
+    margin-bottom: 8px;
+}
+
+.auth-logo p {
+    color: var(--text-secondary);
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(0,94,184,0.1);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.auth-toggle {
+    text-align: center;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+/* ===================================
+   DASHBOARD
+   =================================== */
+
+.dashboard-grid {
+    display: grid;
+    gap: 24px;
+}
+
+.card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+}
+
+.card-featured {
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    color: white;
+    text-align: center;
+}
+
+.card-featured .card-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 2rem;
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.4); }
+    50% { box-shadow: 0 0 0 20px rgba(255,255,255,0); }
+}
+
+.card-featured h3 {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+}
+
+.card-featured p {
+    opacity: 0.9;
+    margin-bottom: 24px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.stat-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: var(--shadow);
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.stat-icon.blue { background: rgba(0,94,184,0.1); color: var(--primary); }
+.stat-icon.green { background: rgba(0,166,81,0.1); color: var(--success); }
+.stat-icon.orange { background: rgba(255,140,0,0.1); color: var(--warning); }
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.card-full {
+    grid-column: 1 / -1;
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.card-header h3 {
+    font-size: 1.125rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.empty-state {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 32px;
+}
+
+/* ===================================
+   WORKSPACE
+   =================================== */
+
+.workspace-tree {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.unit-item, .subject-item, .lesson-item {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+}
+
+.unit-header, .subject-header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.unit-header:hover, .subject-header:hover {
+    background: var(--background);
+}
+
+.unit-title, .subject-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+}
+
+.unit-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+}
+
+.unit-actions, .subject-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.subjects-container, .lessons-container {
+    padding: 0 20px 16px 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.lesson-item {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.lesson-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.status-dot.not-started { background: var(--text-muted); }
+.status-dot.studying { background: var(--warning); }
+.status-dot.done { background: var(--success); }
+
+/* ===================================
+   REVIEW MODES
+   =================================== */
+
+.review-modes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.mode-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 32px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+
+.mode-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.mode-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    color: white;
+    font-size: 2rem;
+}
+
+.mode-card h3 {
+    margin-bottom: 8px;
+}
+
+.mode-card p {
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+}
+
+/* Timer */
+.timer-container {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 48px;
+    text-align: center;
+    box-shadow: var(--shadow);
+}
+
+.timer-circle {
+    position: relative;
+    width: 280px;
+    height: 280px;
+    margin: 0 auto 32px;
+}
+
+.timer-circle svg {
+    transform: rotate(-90deg);
+    width: 100%;
+    height: 100%;
+}
+
+.timer-bg {
+    fill: none;
+    stroke: var(--border);
+    stroke-width: 8;
+}
+
+.timer-progress {
+    fill: none;
+    stroke: var(--primary);
+    stroke-width: 8;
+    stroke-linecap: round;
+    stroke-dasharray: 283;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1s linear;
+}
+
+.timer-display {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 4rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-primary);
+}
+
+.timer-controls {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.timer-status {
+    color: var(--text-secondary);
+    font-size: 1.125rem;
+}
+
+/* ===================================
+   AI SIDEBAR
+   =================================== */
+
+.ai-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ai-avatar {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.ai-header h4 {
+    flex: 1;
+    font-size: 1rem;
+}
+
+.ai-status {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    border-radius: 12px;
+}
+
+.ai-status.online {
+    background: rgba(0,166,81,0.1);
+    color: var(--success);
+}
+
+.ai-chat {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.ai-message {
+    max-width: 85%;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.ai-message.ai-welcome {
+    background: var(--background);
+    color: var(--text-secondary);
+    align-self: flex-start;
+}
+
+.ai-message.user {
+    background: var(--primary);
+    color: white;
+    align-self: flex-end;
+}
+
+.ai-message.assistant {
+    background: var(--background);
+    color: var(--text-primary);
+    align-self: flex-start;
+    border: 1px solid var(--border);
+}
+
+.ai-input {
+    padding: 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 12px;
+}
+
+.ai-input input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+}
+
+.ai-input input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.ai-actions {
+    padding: 12px 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    border-top: 1px solid var(--border);
+}
+
+.ai-action-btn {
+    padding: 10px;
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.ai-action-btn:hover {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+/* ===================================
+   MODALS
+   =================================== */
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: var(--surface);
+    border-radius: var(--radius);
+    width: 100%;
+    max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: modalSlide 0.3s ease;
+}
+
+@keyframes modalSlide {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.modal-header h3 {
+    font-size: 1.125rem;
+}
+
+.modal form {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* ===================================
+   PROGRESS PAGE
+   =================================== */
+
+.progress-dashboard {
+    display: grid;
+    gap: 24px;
+}
+
+.progress-chart-container {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+    height: 400px;
+}
+
+.progress-stats {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.stat-row:last-child {
+    border-bottom: none;
+}
+
+/* ===================================
+   RESPONSIVE
+   =================================== */
+
+@media (max-width: 1200px) {
+    .ai-sidebar {
+        display: none;
+    }
+    
+    .content {
+        max-width: calc(100% - 260px);
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        display: none;
+    }
+    
+    .content {
+        margin-left: 0;
+        max-width: 100%;
+        padding: 20px;
+    }
+    
+    [dir="rtl"] .content {
+        margin-right: 0;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .timer-circle {
+        width: 240px;
+        height: 240px;
+    }
+    
+    .timer-display {
+        font-size: 3rem;
+    }
+}
+```
+
+---
+
+## 3️⃣ js/app.js
+
+```javascript
 /**
  * LOK.A.D.08 - Medical Study System
  * Main Application Logic
@@ -514,4 +2102,4 @@ const app = {
     playNotificationSound() {
         if (!this.timerState.settings.soundEnabled) return;
         
-        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVanu8LdnGgU1k9n1unEiBC13yO/eizEIHWq+8+OZSA0PVantu6tlHAU2k9n1uHAiBCx2xPDdijAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1uHAiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1uHAiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1uHAiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1uHAiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1uHAiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs
+        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVanu8LdnGgU1k9n1unEiBC13yO/eizEIHWq+8+OZSA0PVantu6tlHAU2k9n1uHAiBCx2xPDdijAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1uHAiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1uHAiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1uHAiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1uHAiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1uHAiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTqzs8blnHAU1k9r1unEiBCh2xO/eizAIHGm+8+OWSQ4OTq
