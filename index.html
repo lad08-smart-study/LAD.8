@@ -1,509 +1,680 @@
-<!DOCTYPE html>
-<html lang="fr" dir="ltr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LOK.A.D.08 - Medical Study Companion</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
-    <!-- شريط التنقل -->
-    <nav class="navbar">
-        <div class="nav-brand">
-            <i class="fas fa-heartbeat"></i>
-            <span>LOK.A.D.08</span>
-        </div>
-        <div class="nav-controls">
-            <button id="langToggle" class="btn-lang">
-                <i class="fas fa-globe"></i>
-                <span>FR</span>
-            </button>
-            <button id="authBtn" class="btn-auth">
-                <i class="fas fa-user"></i>
-                <span data-key="login">Connexion</span>
-            </button>
-        </div>
+{
+  "name": "lokad08",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "14.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@supabase/supabase-js": "^2.38.0",
+    "@supabase/ssr": "^0.0.10",
+    "chart.js": "^4.4.0",
+    "react-chartjs-2": "^5.2.0",
+    "date-fns": "^2.30.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "eslint-config-next": "14.0.0"
+  }
+}NEXT_PUBLIC_SUPABASE_URL=your_supabase_url_here
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+GEMINI_API_KEY=AIzaSyD1pNz-ixxjyWqvYOuFlxjz6g7aV7jqDGg/** @type {import('next').NextConfig} */
+const nextConfig = {
+  experimental: {
+    appDir: true,
+  },
+  async headers() {
+    return [
+      {
+        source: '/api/:path*',
+        headers: [
+          { key: 'Access-Control-Allow-Credentials', value: 'true' },
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET,POST,OPTIONS' },
+        ],
+      },
+    ]
+  },
+}
+
+module.exports = nextConfig/node_modules
+/.next
+/out
+.env.local
+.env*.local
+*.logvimport './globals.css'
+import { Inter, Cairo } from 'next/font/google'
+
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
+const cairo = Cairo({ subsets: ['arabic'], variable: '--font-cairo' })
+
+export const metadata = {
+  title: 'LOK.A.D.08 - Medical Study System',
+  description: 'Your intelligent medical study companion',
+}
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="fr" dir="ltr">
+      <body className={`${inter.variable} ${cairo.variable}`}>
+        {children}
+      </body>
+    </html>
+  )
+}import './globals.css'
+import { Inter, Cairo } from 'next/font/google'
+
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
+const cairo = Cairo({ subsets: ['arabic'], variable: '--font-cairo' })
+
+export const metadata = {
+  title: 'LOK.A.D.08 - Medical Study System',
+  description: 'Your intelligent medical study companion',
+}
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="fr" dir="ltr">
+      <body className={`${inter.variable} ${cairo.variable}`}>
+        {children}
+      </body>
+    </html>
+  )
+}:root {
+  --primary: #005EB8;
+  --primary-light: #0072CE;
+  --primary-dark: #003087;
+  --secondary: #00A9CE;
+  --success: #00A651;
+  --warning: #FF8C00;
+  --danger: #DA291C;
+  --background: #F0F4F8;
+  --surface: #FFFFFF;
+  --text-primary: #212B36;
+  --text-secondary: #637381;
+  --text-muted: #919EAB;
+  --border: #DFE3E8;
+  --shadow: 0 2px 8px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--background);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+[dir="rtl"] body {
+  font-family: var(--font-cairo), var(--font-inter), sans-serif;
+}
+
+/* Navbar */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  z-index: 1000;
+  box-shadow: var(--shadow);
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.nav-brand i {
+  font-size: 1.75rem;
+  animation: heartbeat 2s infinite;
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  10%, 30% { transform: scale(1.1); }
+  20%, 40% { transform: scale(1); }
+}
+
+.nav-controls {
+  display: flex;
+  gap: 12px;
+}
+
+/* Buttons */
+.btn-primary, .btn-secondary, .btn-lang, .btn-auth {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+  background: var(--background);
+  border-color: var(--primary);
+}
+
+.btn-icon {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-icon:hover {
+  background: var(--background);
+  color: var(--primary);
+}
+
+.btn-block {
+  width: 100%;
+  padding: 14px;
+  font-size: 1rem;
+}
+
+/* Layout */
+.main-container {
+  display: flex;
+  margin-top: 64px;
+  min-height: calc(100vh - 64px);
+}
+
+.sidebar {
+  width: 260px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 24px 16px;
+  position: fixed;
+  height: 100%;
+  overflow-y: auto;
+}
+
+[dir="rtl"] .sidebar {
+  border-right: none;
+  border-left: 1px solid var(--border);
+}
+
+.content {
+  flex: 1;
+  margin-left: 260px;
+  padding: 32px;
+  max-width: calc(100% - 260px - 320px);
+}
+
+[dir="rtl"] .content {
+  margin-left: 0;
+  margin-right: 260px;
+}
+
+/* AI Sidebar */
+.ai-sidebar {
+  width: 320px;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  position: fixed;
+  right: 0;
+  top: 64px;
+  height: calc(100vh - 64px);
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow);
+}
+
+[dir="rtl"] .ai-sidebar {
+  right: auto;
+  left: 0;
+  border-left: none;
+  border-right: 1px solid var(--border);
+}
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+  margin-bottom: 24px;
+}
+
+.card-featured {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: white;
+  text-align: center;
+}
+
+/* Stats */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: var(--shadow);
+}
+
+/* Timer */
+.timer-container {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 48px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.timer-circle {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  margin: 0 auto 32px;
+}
+
+.timer-display {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 4rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Forms */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0,94,184,0.1);
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.modal-content {
+  background: var(--surface);
+  border-radius: var(--radius);
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+/* Responsive */
+@media (max-width: 1200px)import { NextResponse } from 'next/server'
+
+export async function POST(request) {
+  try {
+    const { prompt, type } = await request.json()
+    
+    const apiKey = process.env.GEMINI_API_KEY
+    
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: prompt
+            }]
+          }]
+        })
+      }
+    )
+
+    const data = await response.json()
+    
+    if (data.error) {
+      throw new Error(data.error.message)
+    }
+
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response'
+
+    return NextResponse.json({ 
+      success: true, 
+      response: text,
+      type 
+    })
+    
+  } catch (error) {
+    console.error('Gemini API Error:', error)
+    return NextResponse.json(
+      { success: false, error: error.message },
+      { status: 500 }
+    )
+  }
+}import { NextResponse } from 'next/server'
+
+export async function POST(request) {
+  try {
+    const { prompt, type } = await request.json()
+    
+    const apiKey = process.env.GEMINI_API_KEY
+    
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: prompt
+            }]
+          }]
+        })
+      }
+    )
+
+    const data = await response.json()
+    
+    if (data.error) {
+      throw new Error(data.error.message)
+    }
+
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response'
+
+    return NextResponse.json({ 
+      success: true, 
+      response: text,
+      type 
+    })
+    
+  } catch (error) {
+    console.error('Gemini API Error:', error)
+    return NextResponse.json(
+      { success: false, error: error.message },
+      { status: 500 }
+    )
+  }
+}'use client'
+
+import { useState } from 'react'
+
+export default function Navbar({ user, lang, onToggleLang, onLogout }) {
+  return (
+    <nav className="navbar">
+      <div className="nav-brand">
+        <i className="fas fa-heartbeat">🩺</i>
+        <span>LOK.A.D.08</span>
+      </div>
+      <div className="nav-controls">
+        <button className="btn-lang" onClick={onToggleLang}>
+          <span>{lang.toUpperCase()}</span>
+        </button>
+        {user ? (
+          <button className="btn-auth" onClick={onLogout}>
+            <span>Logout</span>
+          </button>
+        ) : null}
+      </div>
     </nav>
+  )
+}'use client'
 
-    <!-- القسم الرئيسي -->
-    <main class="main-container">
-        <!-- الشريط الجانبي -->
-        <aside class="sidebar">
-            <div class="user-profile" id="userProfile" style="display: none;">
-                <div class="avatar">
-                    <i class="fas fa-user-md"></i>
-                </div>
-                <h3 id="userName">--</h3>
-                <p id="userYear">--</p>
-            </div>
-            
-            <nav class="sidebar-nav">
-                <button class="nav-item active" data-page="dashboard">
-                    <i class="fas fa-home"></i>
-                    <span data-key="dashboard">Tableau de bord</span>
-                </button>
-                <button class="nav-item" data-page="workspace">
-                    <i class="fas fa-folder-tree"></i>
-                    <span data-key="workspace">Mon Espace</span>
-                </button>
-                <button class="nav-item" data-page="planner">
-                    <i class="fas fa-calendar-alt"></i>
-                    <span data-key="planner">Planning</span>
-                </button>
-                <button class="nav-item" data-page="review">
-                    <i class="fas fa-brain"></i>
-                    <span data-key="review">Révision</span>
-                </button>
-                <button class="nav-item" data-page="progress">
-                    <i class="fas fa-chart-line"></i>
-                    <span data-key="progress">Progrès</span>
-                </button>
-            </nav>
-        </aside>
+import { useState } from 'react'
 
-        <!-- المحتوى الرئيسي -->
-        <div class="content">
-            <!-- صفحة تسجيل الدخول -->
-            <section id="authPage" class="page active">
-                <div class="auth-container">
-                    <div class="auth-box">
-                        <div class="auth-logo">
-                            <i class="fas fa-heartbeat"></i>
-                            <h1>LOK.A.D.08</h1>
-                            <p data-key="tagline">Votre Compagnon Intelligent d'Études Médicales</p>
-                        </div>
-                        
-                        <form id="loginForm" class="auth-form">
-                            <div class="form-group">
-                                <label data-key="email">Email</label>
-                                <input type="email" id="loginEmail" required placeholder="doctor@example.com">
-                            </div>
-                            <div class="form-group">
-                                <label data-key="password">Mot de passe</label>
-                                <input type="password" id="loginPassword" required>
-                            </div>
-                            <button type="submit" class="btn-primary btn-block">
-                                <span data-key="login">Connexion</span>
-                            </button>
-                        </form>
+export default function Auth({ t, onLogin, onRegister }) {
+  const [isLogin, setIsLogin] = useState(true)
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    year: '1'
+  })
 
-                        <form id="registerForm" class="auth-form" style="display: none;">
-                            <div class="form-group">
-                                <label data-key="name">Nom complet</label>
-                                <input type="text" id="regName" required>
-                            </div>
-                            <div class="form-group">
-                                <label data-key="email">Email</label>
-                                <input type="email" id="regEmail" required>
-                            </div>
-                            <div class="form-group">
-                                <label data-key="password">Mot de passe</label>
-                                <input type="password" id="regPassword" required minlength="6">
-                            </div>
-                            <div class="form-group">
-                                <label data-key="year">Année d'études (1-6)</label>
-                                <select id="regYear" required>
-                                    <option value="1">1ère année</option>
-                                    <option value="2">2ème année</option>
-                                    <option value="3">3ème année</option>
-                                    <option value="4">4ème année</option>
-                                    <option value="5">5ème année</option>
-                                    <option value="6">6ème année</option>
-                                </select>
-                            </div>
-                            <button type="submit" class="btn-primary btn-block">
-                                <span data-key="register">S'inscrire</span>
-                            </button>
-                        </form>
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    if (isLogin) {
+      onLogin(formData.email, formData.password)
+    } else {
+      onRegister(formData.name, formData.email, formData.password, formData.year)
+    }
+  }
 
-                        <div class="auth-toggle">
-                            <span id="authToggleText" data-key="noAccount">Pas de compte?</span>
-                            <button id="authToggleBtn" class="btn-link" data-key="createAccount">Créer un compte</button>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- صفحة لوحة التحكم -->
-            <section id="dashboardPage" class="page">
-                <header class="page-header">
-                    <h2 data-key="dashboard">Tableau de bord</h2>
-                    <p class="page-subtitle" id="dashboardDate">--</p>
-                </header>
-
-                <div class="dashboard-grid">
-                    <div class="card card-featured">
-                        <div class="card-icon pulse">
-                            <i class="fas fa-play"></i>
-                        </div>
-                        <h3 data-key="startNow">Commencer maintenant</h3>
-                        <p data-key="continueStudying">Continuez votre session d'étude</p>
-                        <button class="btn-primary" id="quickStartBtn">
-                            <i class="fas fa-book-open"></i>
-                            <span data-key="study">Étudier</span>
-                        </button>
-                    </div>
-
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-icon blue">
-                                <i class="fas fa-clock"></i>
-                            </div>
-                            <div class="stat-info">
-                                <span class="stat-value" id="todayHours">0h</span>
-                                <span class="stat-label" data-key="today">Aujourd'hui</span>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon green">
-                                <i class="fas fa-fire"></i>
-                            </div>
-                            <div class="stat-info">
-                                <span class="stat-value" id="streakDays">0</span>
-                                <span class="stat-label" data-key="streak">Jours consécutifs</span>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon orange">
-                                <i class="fas fa-tasks"></i>
-                            </div>
-                            <div class="stat-info">
-                                <span class="stat-value" id="progressPercent">0%</span>
-                                <span class="stat-label" data-key="progress">Progrès</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card card-full">
-                        <div class="card-header">
-                            <h3><i class="fas fa-bell"></i> <span data-key="dueReviews">Révisions dues</span></h3>
-                        </div>
-                        <div id="dueReviewsList" class="due-list">
-                            <p class="empty-state" data-key="noReviews">Aucune révision pour aujourd'hui</p>
-                        </div>
-                    </div>
-
-                    <div class="card card-full">
-                        <div class="card-header">
-                            <h3><i class="fas fa-calendar-day"></i> <span data-key="todaySchedule">Planning d'aujourd'hui</span></h3>
-                        </div>
-                        <div id="todaySchedule" class="schedule-list">
-                            <p class="empty-state" data-key="noSchedule">Aucune session planifiée</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- صفحة مساحة العمل -->
-            <section id="workspacePage" class="page">
-                <header class="page-header">
-                    <h2 data-key="workspace">Mon Espace de Travail</h2>
-                    <div class="header-actions">
-                        <button class="btn-secondary" id="addUnitBtn">
-                            <i class="fas fa-plus"></i> <span data-key="addUnit">Unité</span>
-                        </button>
-                        <button class="btn-secondary" id="addSubjectBtn">
-                            <i class="fas fa-plus"></i> <span data-key="addSubject">Matière</span>
-                        </button>
-                    </div>
-                </header>
-
-                <div id="workspaceContent" class="workspace-tree"></div>
-            </section>
-
-            <!-- صفحة المخطط -->
-            <section id="plannerPage" class="page">
-                <header class="page-header">
-                    <h2 data-key="planner">Planning Intelligent</h2>
-                    <button class="btn-primary" id="generatePlanBtn">
-                        <i class="fas fa-magic"></i> <span data-key="generatePlan">Générer un planning</span>
-                    </button>
-                </header>
-
-                <div class="planner-container">
-                    <div class="week-view" id="weekView"></div>
-                </div>
-            </section>
-
-            <!-- صفحة المراجعة -->
-            <section id="reviewPage" class="page">
-                <header class="page-header">
-                    <h2 data-key="review">Mode Révision</h2>
-                </header>
-
-                <div class="review-modes">
-                    <div class="mode-card" id="pomodoroMode">
-                        <div class="mode-icon">
-                            <i class="fas fa-stopwatch"></i>
-                        </div>
-                        <h3>Pomodoro</h3>
-                        <p>25 min focus + 5 min pause</p>
-                        <button class="btn-primary" onclick="app.startPomodoro()">Démarrer</button>
-                    </div>
-
-                    <div class="mode-card" id="flashcardsMode">
-                        <div class="mode-icon">
-                            <i class="fas fa-clone"></i>
-                        </div>
-                        <h3>Flashcards</h3>
-                        <p>Répétition espacée</p>
-                        <button class="btn-primary" onclick="app.startFlashcards()">Réviser</button>
-                    </div>
-
-                    <div class="mode-card" id="quizMode">
-                        <div class="mode-icon">
-                            <i class="fas fa-question-circle"></i>
-                        </div>
-                        <h3>QCM</h3>
-                        <p>Questions à choix multiples</p>
-                        <button class="btn-primary" onclick="app.startQuiz()">Tester</button>
-                    </div>
-                </div>
-
-                <div id="pomodoroTimer" class="timer-container" style="display: none;">
-                    <div class="timer-circle">
-                        <svg viewBox="0 0 100 100">
-                            <circle class="timer-bg" cx="50" cy="50" r="45"></circle>
-                            <circle class="timer-progress" id="timerProgress" cx="50" cy="50" r="45"></circle>
-                        </svg>
-                        <div class="timer-display">
-                            <span id="timerMinutes">25</span>:<span id="timerSeconds">00</span>
-                        </div>
-                    </div>
-                    <div class="timer-controls">
-                        <button id="timerToggle" class="btn-primary btn-lg" onclick="app.toggleTimer()">
-                            <i class="fas fa-play"></i>
-                        </button>
-                        <button id="timerReset" class="btn-secondary" onclick="app.resetTimer()">
-                            <i class="fas fa-redo"></i>
-                        </button>
-                        <button id="timerSettings" class="btn-secondary" onclick="app.showModal('timerSettingsModal')">
-                            <i class="fas fa-cog"></i>
-                        </button>
-                    </div>
-                    <div class="timer-status" id="timerStatus">Prêt à commencer</div>
-                </div>
-            </section>
-
-            <!-- صفحة التقدم -->
-            <section id="progressPage" class="page">
-                <header class="page-header">
-                    <h2 data-key="progress">Mes Progrès</h2>
-                </header>
-
-                <div class="progress-dashboard">
-                    <div class="progress-chart-container">
-                        <canvas id="progressChart"></canvas>
-                    </div>
-                    
-                    <div class="progress-stats">
-                        <div class="stat-row">
-                            <span data-key="totalStudyTime">Temps total d'étude</span>
-                            <strong id="totalStudyTime">0h</strong>
-                        </div>
-                        <div class="stat-row">
-                            <span data-key="completedLessons">Leçons terminées</span>
-                            <strong id="completedLessons">0/0</strong>
-                        </div>
-                        <div class="stat-row">
-                            <span data-key="averageSession">Session moyenne</span>
-                            <strong id="avgSession">0 min</strong>
-                        </div>
-                    </div>
-                </div>
-            </section>
+  return (
+    <div className="auth-container" style={{
+      minHeight: 'calc(100vh - 64px)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '24px'
+    }}>
+      <div className="card" style={{ width: '100%', maxWidth: '440px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '16px' }}>🩺</div>
+          <h1>LOK.A.D.08</h1>
+          <p style={{ color: 'var(--text-secondary)' }}>{t.tagline}</p>
         </div>
 
-        <!-- مساعد الذكاء الاصطناعي -->
-        <aside class="ai-sidebar" id="aiSidebar">
-            <div class="ai-header">
-                <div class="ai-avatar">
-                    <i class="fas fa-robot"></i>
-                </div>
-                <div>
-                    <h4>AI Assistant</h4>
-                    <span class="ai-status online">En ligne</span>
-                </div>
-                <button id="toggleAi" class="btn-icon" onclick="app.toggleAiSidebar()">
-                    <i class="fas fa-chevron-down"></i>
-                </button>
+        <form onSubmit={handleSubmit}>
+          {!isLogin && (
+            <div className="form-group">
+              <label>{t.name}</label>
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                required
+              />
             </div>
-            
-            <div class="ai-chat" id="aiChat">
-                <div class="ai-message ai-welcome">
-                    <p>Bonjour! Je suis votre assistant d'études. Comment puis-je vous aider aujourd'hui?</p>
-                </div>
+          )}
+          
+          <div className="form-group">
+            <label>{t.email}</label>
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({...formData, email: e.target.value})}
+              required
+            />
+          </div>
+          
+          <div className="form-group">
+            <label>{t.password}</label>
+            <input
+              type="password"
+              value={formData.password}
+              onChange={(e) => setFormData({...formData, password: e.target.value})}
+              required
+              minLength={6}
+            />
+          </div>
+          
+          {!isLogin && (
+            <div className="form-group">
+              <label>{t.year}</label>
+              <select
+                value={formData.year}
+                onChange={(e) => setFormData({...formData, year: e.target.value})}
+              >
+                {[1,2,3,4,5,6].map(y => (
+                  <option key={y} value={y}>{y}</option>
+                ))}
+              </select>
             </div>
-            
-            <div class="ai-input">
-                <input type="text" id="aiInput" placeholder="Posez votre question..." onkeypress="if(event.key==='Enter')app.sendAiMessage()">
-                <button id="aiSend" class="btn-icon" onclick="app.sendAiMessage()">
-                    <i class="fas fa-paper-plane"></i>
-                </button>
-            </div>
-            
-            <div class="ai-actions">
-                <button class="ai-action-btn" onclick="app.askAI('summarize')">
-                    <i class="fas fa-compress"></i> Résumer
-                </button>
-                <button class="ai-action-btn" onclick="app.askAI('quiz')">
-                    <i class="fas fa-question"></i> QCM
-                </button>
-                <button class="ai-action-btn" onclick="app.askAI('flashcards')">
-                    <i class="fas fa-clone"></i> Flashcards
-                </button>
-                <button class="ai-action-btn" onclick="app.askAI('plan')">
-                    <i class="fas fa-calendar"></i> Planifier
-                </button>
-            </div>
-        </aside>
-    </main>
+          )}
+          
+          <button type="submit" className="btn-primary btn-block">
+            {isLogin ? t.login : t.register}
+          </button>
+        </form>
 
-    <!-- النماذج المنبثقة -->
-    <div class="modal" id="addUnitModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 data-key="addUnit">Nouvelle Unité</h3>
-                <button class="btn-close" onclick="app.closeModal('addUnitModal')">&times;</button>
-            </div>
-            <form id="unitForm" onsubmit="app.handleUnitSubmit(event)">
-                <div class="form-group">
-                    <label>Nom (FR)</label>
-                    <input type="text" id="unitNameFr" required>
-                </div>
-                <div class="form-group">
-                    <label>الاسم (AR)</label>
-                    <input type="text" id="unitNameAr" required>
-                </div>
-                <div class="form-group">
-                    <label data-key="color">Couleur</label>
-                    <input type="color" id="unitColor" value="#005EB8">
-                </div>
-                <button type="submit" class="btn-primary btn-block">Ajouter</button>
-            </form>
+        <div style={{ textAlign: 'center', marginTop: '24px', paddingTop: '24px', borderTop: '1px solid var(--border)' }}>
+          <span style={{ color: 'var(--text-secondary)' }}>
+            {isLogin ? t.noAccount : t.haveAccount}
+          </span>
+          <button 
+            className="btn-link" 
+            onClick={() => setIsLogin(!isLogin)}
+            style={{ marginLeft: '8px' }}
+          >
+            {isLogin ? t.createAccount : t.login}
+          </button>
         </div>
+      </div>
     </div>
+  )
+}'use client'
 
-    <div class="modal" id="addSubjectModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 data-key="addSubject">Nouvelle Matière</h3>
-                <button class="btn-close" onclick="app.closeModal('addSubjectModal')">&times;</button>
-            </div>
-            <form id="subjectForm" onsubmit="app.handleSubjectSubmit(event)">
-                <div class="form-group">
-                    <label>Nom (FR)</label>
-                    <input type="text" id="subjectNameFr" required>
-                </div>
-                <div class="form-group">
-                    <label>الاسم (AR)</label>
-                    <input type="text" id="subjectNameAr" required>
-                </div>
-                <div class="form-group">
-                    <label data-key="unit">Unité (optionnel)</label>
-                    <select id="subjectUnit">
-                        <option value="">-- Indépendant --</option>
-                    </select>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label data-key="difficulty">Difficulté</label>
-                        <select id="subjectDifficulty">
-                            <option value="1">1 - Facile</option>
-                            <option value="2">2</option>
-                            <option value="3" selected>3 - Moyen</option>
-                            <option value="4">4</option>
-                            <option value="5">5 - Difficile</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label data-key="importance">Importance</label>
-                        <select id="subjectImportance">
-                            <option value="1">1 - Faible</option>
-                            <option value="2">2</option>
-                            <option value="3" selected>3 - Moyenne</option>
-                            <option value="4">4</option>
-                            <option value="5">5 - Critique</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label data-key="examDate">Date d'examen</label>
-                    <input type="date" id="subjectExamDate">
-                </div>
-                <button type="submit" class="btn-primary btn-block">Ajouter</button>
-            </form>
+export default function Dashboard({ t, user, stats, onStartStudy }) {
+  return (
+    <div>
+      <header className="page-header">
+        <h2>{t.dashboard}</h2>
+        <p style={{ color: 'var(--text-secondary)' }}>
+          {new Date().toLocaleDateString()}
+        </p>
+      </header>
+
+      <div className="card card-featured">
+        <div style={{ fontSize: '3rem', marginBottom: '16px' }}>▶️</div>
+        <h3>{t.startNow}</h3>
+        <p style={{ opacity: 0.9, marginBottom: '24px' }}>Continue your study session</p>
+        <button className="btn-primary" onClick={onStartStudy} style={{ fontSize: '1.125rem', padding: '16px 32px' }}>
+          {t.study}
+        </button>
+      </div>
+
+      <div className="stats-grid">
+        <div className="stat-card">
+          <div className="stat-icon" style={{ background: 'rgba(0,94,184,0.1)', color: 'var(--primary)' }}>⏰</div>
+          <div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{stats.todayHours}h</div>
+            <div style={{ color: 'var(--text-secondary)' }}>{t.today}</div>
+          </div>
         </div>
-    </div>
-
-    <div class="modal" id="addLessonModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 data-key="addLesson">Nouvelle Leçon</h3>
-                <button class="btn-close" onclick="app.closeModal('addLessonModal')">&times;</button>
-            </div>
-            <form id="lessonForm" onsubmit="app.handleLessonSubmit(event)">
-                <input type="hidden" id="lessonSubjectId">
-                <div class="form-group">
-                    <label>Titre (FR)</label>
-                    <input type="text" id="lessonTitleFr" required>
-                </div>
-                <div class="form-group">
-                    <label>العنوان (AR)</label>
-                    <input type="text" id="lessonTitleAr" required>
-                </div>
-                <div class="form-group">
-                    <label data-key="estimatedTime">Durée estimée (min)</label>
-                    <input type="number" id="lessonDuration" value="60" min="15" step="15">
-                </div>
-                <div class="form-group">
-                    <label data-key="content">Contenu / Notes</label>
-                    <textarea id="lessonContent" rows="4"></textarea>
-                </div>
-                <button type="submit" class="btn-primary btn-block">Ajouter</button>
-            </form>
+        <div className="stat-card">
+          <div className="stat-icon" style={{ background: 'rgba(0,166,81,0.1)', color: 'var(--success)' }}>🔥</div>
+          <div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{stats.streak}</div>
+            <div style={{ color: 'var(--text-secondary)' }}>{t.streak}</div>
+          </div>
         </div>
-    </div>
-
-    <div class="modal" id="timerSettingsModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Paramètres Pomodoro</h3>
-                <button class="btn-close" onclick="app.closeModal('timerSettingsModal')">&times;</button>
-            </div>
-            <form id="timerSettingsForm" onsubmit="app.handleTimerSettings(event)">
-                <div class="form-group">
-                    <label>Temps de focus (minutes)</label>
-                    <input type="number" id="focusTime" value="25" min="1" max="60">
-                </div>
-                <div class="form-group">
-                    <label>Temps de pause (minutes)</label>
-                    <input type="number" id="breakTime" value="5" min="1" max="30">
-                </div>
-                <div class="form-group">
-                    <label>Longue pause après (cycles)</label>
-                    <input type="number" id="longBreakInterval" value="4" min="2" max="10">
-                </div>
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="autoStartBreaks" checked>
-                        Démarrer les pauses automatiquement
-                    </label>
-                </div>
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="soundEnabled" checked>
-                        Activer les sons
-                    </label>
-                </div>
-                <button type="submit" class="btn-primary btn-block">Enregistrer</button>
-            </form>
+        <div className="stat-card">
+          <div className="stat-icon" style={{ background: 'rgba(255,140,0,0.1)', color: 'var(--warning)' }}>📊</div>
+          <div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{stats.progress}%</div>
+            <div style={{ color: 'var(--text-secondary)' }}>{t.progress}</div>
+          </div>
         </div>
-    </div>
+      </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="js/app.js"></script>
-</body>
-</html>
+      <div className="card">
+        <h3>🎯 {t.dueReviews}</h3>
+        <p style={{ color: 'var(--text-muted)', padding: '32px', textAlign: 'center' }}>
+          No reviews due today
+        </p>
+      </div>
+    </div>
+  )
+}
