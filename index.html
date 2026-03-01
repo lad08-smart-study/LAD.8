@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>LOK.A.D.08</title>
+  <style>
+    body{font-family:system-ui;margin:0;background:#f7f9fc;color:#0f172a}
+    header{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#fff;border-bottom:1px solid #e2e8f0;position:sticky;top:0}
+    .btn{padding:8px 10px;border:1px solid #e2e8f0;background:#fff;border-radius:10px;cursor:pointer}
+    .btn.primary{background:#1e4fd7;color:#fff;border-color:#1e4fd7}
+    main{padding:16px;display:grid;grid-template-columns:320px 1fr;gap:12px}
+    .card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:12px}
+    input,textarea,select{width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:10px}
+    textarea{min-height:90px}
+    .row{display:flex;gap:8px;flex-wrap:wrap}
+    .list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+    .item{display:flex;justify-content:space-between;gap:10px;align-items:center;border:1px solid #e2e8f0;border-radius:12px;padding:10px}
+    /* AI panel */
+    #aiPanel{position:fixed;top:0;right:0;width:min(420px,100%);height:100vh;background:#fff;border-left:1px solid #e2e8f0;transform:translateX(100%);transition:.2s;display:flex;flex-direction:column}
+    #aiPanel.open{transform:translateX(0)}
+    #aiBody{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
+    .bubble{border:1px solid #e2e8f0;border-radius:14px;padding:10px;white-space:pre-wrap}
+    .bubble.me{background:#eef2ff;border-color:#c7d2fe}
+    #aiFoot{border-top:1px solid #e2e8f0;padding:12px;display:flex;gap:8px}
+    #aiFoot input{flex:1}
+    html[dir="rtl"] #aiPanel{right:auto;left:0;border-left:none;border-right:1px solid #e2e8f0;transform:translateX(-100%)}
+    html[dir="rtl"] #aiPanel.open{transform:translateX(0)}
+  </style>
+</head>
+<body>
+<header>
+  <div><b>LOK.A.D.08</b> <span id="who" style="color:#64748b"></span></div>
+  <div class="row">
+    <button class="btn" id="fr">FR</button>
+    <button class="btn" id="ar">AR</button>
+    <button class="btn" id="en">EN</button>
+    <button class="btn" id="aiToggle">AI</button>
+    <button class="btn primary" id="loginBtn">Login</button>
+    <button class="btn" id="logoutBtn" style="display:none">Logout</button>
+  </div>
+</header>
+
+<main>
+  <div class="card">
+    <h3>Login (Magic Link)</h3>
+    <div class="row">
+      <input id="email" placeholder="Email"/>
+      <button class="btn primary" id="sendLink">Send Link</button>
+    </div>
+    <p style="color:#64748b;font-size:13px">افتح الرابط الذي يصلك في البريد وسيتم تسجيل دخولك تلقائيًا.</p>
+  </div>
+
+  <div class="card">
+    <h3>Units → Subjects → Lessons</h3>
+
+    <div class="row">
+      <input id="unitTitle" placeholder="New Unit title"/>
+      <button class="btn primary" id="addUnit">Add Unit</button>
+    </div>
+    <div class="list" id="units"></div>
+
+    <hr/>
+
+    <div class="row">
+      <select id="unitSelect"></select>
+      <input id="subjectTitle" placeholder="Subject (inside selected unit)"/>
+      <button class="btn primary" id="addSubject">Add Subject</button>
+    </div>
+
+    <div class="row" style="margin-top:8px">
+      <input id="standTitle" placeholder="Standalone Subject"/>
+      <button class="btn primary" id="addStand">Add Standalone</button>
+    </div>
+
+    <div class="list" id="subjects"></div>
+
+    <hr/>
+
+    <div class="row">
+      <select id="subjectSelect"></select>
+      <input id="lessonTitle" placeholder="Lesson title"/>
+    </div>
+    <textarea id="lessonText" placeholder="Paste lesson text here"></textarea>
+    <div class="row">
+      <select id="lessonStatus">
+        <option value="not_started">not_started</option>
+        <option value="studying">studying</option>
+        <option value="done">done</option>
+      </select>
+      <button class="btn primary" id="addLesson">Add Lesson</button>
+    </div>
+
+    <div class="list" id="lessons"></div>
+  </div>
+</main>
+
+<!-- AI Panel -->
+<aside id="aiPanel">
+  <div style="padding:12px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center">
+    <b>AI Assistant</b>
+    <button class="btn" id="aiClose">✕</button>
+  </div>
+  <div style="padding:12px;border-bottom:1px solid #e2e8f0" class="row">
+    <button class="btn" id="doSummary">Summary</button>
+    <button class="btn" id="doMCQ">MCQ</button>
+    <button class="btn" id="doFlash">Flash</button>
+    <button class="btn" id="doOrganize">Organize</button>
+    <button class="btn" id="doPlan">Plan</button>
+  </div>
+  <div id="aiBody">
+    <div class="bubble">Select a lesson then use actions, or chat below.</div>
+  </div>
+  <div id="aiFoot">
+    <input id="aiMsg" placeholder="Ask..."/>
+    <button class="btn primary" id="aiSend">Send</button>
+  </div>
+</aside>
+
+<script type="module">
+  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+  const SUPABASE_URL = "PASTE_YOUR_SUPABASE_URL";
+  const SUPABASE_ANON_KEY = "PASTE_YOUR_SUPABASE_ANON_KEY";
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const $ = (id)=>document.getElementById(id);
+
+  let user=null;
+  let selectedLesson=null;
+
+  let locale="fr";
+  function setLocale(l){
+    locale=l;
+    document.documentElement.lang=l;
+    document.documentElement.dir=(l==="ar")?"rtl":"ltr";
+  }
+  $("fr").onclick=()=>setLocale("fr");
+  $("ar").onclick=()=>setLocale("ar");
+  $("en").onclick=()=>setLocale("en");
+  setLocale("fr");
+
+  function bubble(text, me=false){
+    const d=document.createElement("div");
+    d.className="bubble"+(me?" me":"");
+    d.textContent=text;
+    return d;
+  }
+
+  async function refreshSession(){
+    const { data:{session} } = await supabase.auth.getSession();
+    user=session?.user||null;
+    $("who").textContent = user ? ("• "+user.email) : "";
+    $("loginBtn").style.display = user ? "none" : "";
+    $("logoutBtn").style.display = user ? "" : "none";
+  }
+
+  $("sendLink").onclick = async ()=>{
+    const email=$("email").value.trim();
+    if(!email) return alert("Enter email");
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options:{ emailRedirectTo: window.location.origin }
+    });
+    if(error) return alert(error.message);
+    alert("Check your email. Open the link to login.");
+  };
+
+  $("logoutBtn").onclick = async ()=>{
+    await supabase.auth.signOut();
+    await refreshSession();
+  };
+
+  // Load units/subjects/lessons
+  async function loadUnits(){
+    if(!user) return;
+    const { data } = await supabase.from("units").select("*").order("created_at",{ascending:true});
+    $("units").innerHTML="";
+    $("unitSelect").innerHTML="";
+    (data||[]).forEach(u=>{
+      const it=document.createElement("div");
+      it.className="item";
+      it.innerHTML=`<div>${u.title}</div><div class="row"><button class="btn" data-sel>Select</button><button class="btn" data-del>Del</button></div>`;
+      it.querySelector("[data-sel]").onclick=()=>{ $("unitSelect").value=u.id; loadSubjects(); };
+      it.querySelector("[data-del]").onclick=async()=>{ await supabase.from("units").delete().eq("id",u.id); loadUnits(); };
+      $("units").appendChild(it);
+
+      const opt=document.createElement("option");
+      opt.value=u.id; opt.textContent=u.title;
+      $("unitSelect").appendChild(opt);
+    });
+    await loadSubjects();
+  }
+
+  async function loadSubjects(){
+    if(!user) return;
+    const unit_id=$("unitSelect").value || null;
+
+    const { data: inUnit } = await supabase.from("subjects").select("*").eq("unit_id",unit_id);
+    const { data: stand } = await supabase.from("subjects").select("*").is("unit_id",null);
+
+    const all=[...(inUnit||[]), ...(stand||[])];
+    $("subjects").innerHTML="";
+    $("subjectSelect").innerHTML="";
+    all.forEach(s=>{
+      const it=document.createElement("div");
+      it.className="item";
+      it.innerHTML=`<div>${s.title} ${s.unit_id? "(Unit)":"(Standalone)"}</div><div class="row"><button class="btn" data-open>Open</button><button class="btn" data-del>Del</button></div>`;
+      it.querySelector("[data-open]").onclick=()=>{ $("subjectSelect").value=s.id; loadLessons(); };
+      it.querySelector("[data-del]").onclick=async()=>{ await supabase.from("subjects").delete().eq("id",s.id); loadSubjects(); };
+      $("subjects").appendChild(it);
+
+      const opt=document.createElement("option");
+      opt.value=s.id; opt.textContent=s.title;
+      $("subjectSelect").appendChild(opt);
+    });
+    await loadLessons();
+  }
+
+  async function loadLessons(){
+    if(!user) return;
+    const subject_id=$("subjectSelect").value;
+    if(!subject_id){ $("lessons").innerHTML=""; return; }
+
+    const { data } = await supabase.from("lessons").select("*").eq("subject_id",subject_id).order("created_at",{ascending:true});
+    $("lessons").innerHTML="";
+    (data||[]).forEach(l=>{
+      const it=document.createElement("div");
+      it.className="item";
+      it.innerHTML=`<div>${l.title} • <small>${l.status}</small></div><div class="row"><button class="btn" data-sel>Select</button><button class="btn" data-del>Del</button></div>`;
+      it.querySelector("[data-sel]").onclick=()=>{ selectedLesson=l; $("aiBody").appendChild(bubble("Selected: "+l.title)); $("aiPanel").classList.add("open"); };
+      it.querySelector("[data-del]").onclick=async()=>{ await supabase.from("lessons").delete().eq("id",l.id); loadLessons(); };
+      $("lessons").appendChild(it);
+    });
+  }
+
+  $("addUnit").onclick = async ()=>{
+    if(!user) return alert("Login first");
+    const title=$("unitTitle").value.trim();
+    if(!title) return;
+    await supabase.from("units").insert({ user_id:user.id, title });
+    $("unitTitle").value="";
+    loadUnits();
+  };
+
+  $("addSubject").onclick = async ()=>{
+    if(!user) return alert("Login first");
+    const unit_id=$("unitSelect").value;
+    const title=$("subjectTitle").value.trim();
+    if(!unit_id || !title) return;
+    await supabase.from("subjects").insert({ user_id:user.id, unit_id, title });
+    $("subjectTitle").value="";
+    loadSubjects();
+  };
+
+  $("addStand").onclick = async ()=>{
+    if(!user) return alert("Login first");
+    const title=$("standTitle").value.trim();
+    if(!title) return;
+    await supabase.from("subjects").insert({ user_id:user.id, unit_id:null, title });
+    $("standTitle").value="";
+    loadSubjects();
+  };
+
+  $("addLesson").onclick = async ()=>{
+    if(!user) return alert("Login first");
+    const subject_id=$("subjectSelect").value;
+    const title=$("lessonTitle").value.trim();
+    if(!subject_id || !title) return;
+    await supabase.from("lessons").insert({
+      user_id:user.id,
+      subject_id,
+      title,
+      content_text: $("lessonText").value,
+      status: $("lessonStatus").value
+    });
+    $("lessonTitle").value="";
+    $("lessonText").value="";
+    loadLessons();
+  };
+
+  // AI UI
+  $("aiToggle").onclick=()=>$("aiPanel").classList.toggle("open");
+  $("aiClose").onclick=()=>$("aiPanel").classList.remove("open");
+
+  async function callAI(path, payload){
+    const r=await fetch(path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+    if(!r.ok) throw new Error(await r.text());
+    return await r.json();
+  }
+
+  async function runAction(endpoint){
+    if(!selectedLesson && endpoint!=="/api/plan"){
+      $("aiBody").appendChild(bubble("Select a lesson first."));
+      return;
+    }
+    const payload = endpoint==="/api/plan"
+      ? { locale, free_hours:3, exam_date:null }
+      : { locale, lesson_title:selectedLesson.title, lesson_text:selectedLesson.content_text||"" };
+
+    const out=await callAI(endpoint,payload);
+    $("aiBody").appendChild(bubble(out.text||"",false));
+  }
+
+  $("doSummary").onclick=()=>runAction("/api/summary");
+  $("doMCQ").onclick=()=>runAction("/api/mcq");
+  $("doFlash").onclick=()=>runAction("/api/flashcards");
+  $("doOrganize").onclick=()=>runAction("/api/organize");
+  $("doPlan").onclick=()=>runAction("/api/plan");
+
+  $("aiSend").onclick = async ()=>{
+    const msg=$("aiMsg").value.trim();
+    if(!msg) return;
+    $("aiMsg").value="";
+    $("aiBody").appendChild(bubble(msg,true));
+    const out=await callAI("/api/chat",{
+      locale,
+      message:msg,
+      context:{
+        lesson_title: selectedLesson?.title || null,
+        lesson_text: (selectedLesson?.content_text || "").slice(0,12000)
+      }
+    });
+    $("aiBody").appendChild(bubble(out.text||"",false));
+  };
+
+  // Init
+  await refreshSession();
+  supabase.auth.onAuthStateChange(async ()=>{ await refreshSession(); await loadUnits(); });
+  if(user) await loadUnits();
+</script>
+</body>
+</html>
